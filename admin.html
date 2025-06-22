@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administrador - World Tattoo Rating</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-50 font-['Onest']">
+    <!-- Login Section -->
+    <div id="loginSection" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-700">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-white text-2xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Panel de Administrador</h2>
+                <p class="text-gray-600">Acceso seguro al sistema</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div class="hidden">
+                    <label for="username" class="sr-only">Usuario</label>
+                    <input type="text" 
+                           id="username" 
+                           name="username"
+                           autocomplete="username"
+                           aria-hidden="true">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Contraseña de Administrador
+                    </label>
+                    <input type="password" 
+                           id="password" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition duration-200"
+                           placeholder="Ingresa tu contraseña"
+                           autocomplete="current-password"
+                           required>
+                </div>
+                
+                <div id="errorMessage" class="text-red-500 text-sm hidden bg-red-50 p-3 rounded-lg">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Contraseña incorrecta. Por favor, intente nuevamente.
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-gray-900 text-white py-3 px-4 rounded-lg hover:bg-gray-800 transition duration-300 flex items-center justify-center"
+                        id="submitBtn">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    Ingresar al Panel
+                </button>
+                
+                <div class="text-center">
+                    <button type="button" 
+                            id="forgotPasswordBtn"
+                            class="text-gray-600 hover:text-gray-900 transition duration-300 text-sm">
+                        <i class="fas fa-question-circle mr-1"></i>
+                        ¿Olvidaste tu contraseña?
+                    </button>
+                </div>
+                
+                <a href="index.html" 
+                   class="block text-center text-gray-600 hover:text-gray-900 transition duration-300">
+                    <i class="fas fa-arrow-left mr-2"></i>Volver a la página principal
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Password Recovery Modal -->
+    <div id="recoveryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-mobile-alt text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Recuperar Contraseña</h3>
+                <p class="text-gray-600">Ingresa tu número de celular para recibir un código de verificación</p>
+            </div>
+            
+            <form id="recoveryForm" class="space-y-4">
+                <div>
+                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-phone mr-2"></i>Número de Celular
+                    </label>
+                    <input type="tel" 
+                           id="phoneNumber" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="+57 300 123 4567"
+                           required>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button type="submit" 
+                            class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                        <i class="fas fa-paper-plane mr-2"></i>Enviar Código
+                    </button>
+                    <button type="button" 
+                            id="cancelRecovery"
+                            class="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-400 transition duration-300">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel Section -->
+    <div id="adminPanel" class="hidden min-h-screen bg-gray-50">
+        <!-- Header -->
+        <header class="bg-white shadow-lg border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gray-900 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-chart-bar text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900">Panel de Administrador</h1>
+                            <p class="text-gray-600">Gestión de registros - World Tattoo Rating</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right">
+                            <p class="text-sm text-gray-600">Último acceso</p>
+                            <p class="text-sm font-medium" id="lastAccess"></p>
+                        </div>
+                        <a href="index.html" 
+                           class="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition duration-300">
+                            <i class="fas fa-home mr-2"></i>Inicio
+                        </a>
+                        <button id="logoutBtn" 
+                                class="text-gray-600 hover:text-gray-900 transition duration-300 px-4 py-2 rounded-lg hover:bg-gray-100">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Cerrar sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Administradores Section -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-shield text-purple-600 text-xl mr-3"></i>
+                            <h2 class="text-2xl font-bold text-gray-900">Gestión de Administradores</h2>
+                        </div>
+                        <button id="addAdminBtn" 
+                                class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-300">
+                            <i class="fas fa-plus mr-2"></i>Nuevo Administrador
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full" id="adminsTable">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivel de Acceso</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminsTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-paint-brush text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Tatuadores</p>
+                            <p class="text-2xl font-bold text-gray-900" id="totalTatuadores">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-gavel text-green-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Jurados</p>
+                            <p class="text-2xl font-bold text-gray-900" id="totalJurados">0</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Registros</p>
+                            <p class="text-2xl font-bold text-gray-900" id="totalRegistros">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tatuadores Section -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <i class="fas fa-paint-brush text-blue-600 text-xl mr-3"></i>
+                            <h2 class="text-2xl font-bold text-gray-900">Tatuadores Registrados</h2>
+                        </div>
+                        <button id="exportTatuadores" 
+                                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300">
+                            <i class="fas fa-file-excel mr-2"></i>Exportar Excel
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full" id="tatuadoresTable">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Artístico</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">País</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciudad</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Registro</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tatuadoresTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jurados Section -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <i class="fas fa-gavel text-green-600 text-xl mr-3"></i>
+                            <h2 class="text-2xl font-bold text-gray-900">Jurados Registrados</h2>
+                        </div>
+                        <button id="exportJurados" 
+                                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300">
+                            <i class="fas fa-file-excel mr-2"></i>Exportar Excel
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full" id="juradosTable">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Artístico</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">País</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciudad</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Registro</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="juradosTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para Administradores -->
+    <div id="adminModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-shield text-purple-600 text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Gestionar Administrador</h3>
+                <p class="text-gray-600">Complete los datos del administrador</p>
+            </div>
+            
+            <form id="adminForm" class="space-y-4">
+                <div>
+                    <label for="adminName" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2"></i>Nombre Completo
+                    </label>
+                    <input type="text" 
+                           id="adminName" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           required>
+                </div>
+                
+                <div>
+                    <label for="adminEmail" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Correo Electrónico
+                    </label>
+                    <input type="email" 
+                           id="adminEmail" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           autocomplete="email"
+                           required>
+                </div>
+                
+                <div>
+                    <label for="adminPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Contraseña
+                    </label>
+                    <input type="password" 
+                           id="adminPassword" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           autocomplete="new-password"
+                           required>
+                </div>
+                
+                <div>
+                    <label for="adminAccess" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-shield-alt mr-2"></i>Nivel de Acceso
+                    </label>
+                    <select id="adminAccess" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            required>
+                        <option value="admin">Administrador</option>
+                        <option value="moderator">Moderador</option>
+                        <option value="viewer">Visualizador</option>
+                    </select>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button type="submit" 
+                            class="flex-1 bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition duration-300">
+                        <i class="fas fa-save mr-2"></i>Guardar
+                    </button>
+                    <button type="button" 
+                            id="cancelAdmin"
+                            class="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-400 transition duration-300">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mensajes de Contacto Section -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 mb-8">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-envelope text-yellow-600 text-xl mr-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-900">Mensajes de Contacto</h2>
+                </div>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full" id="contactTable">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mensaje</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contactTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
